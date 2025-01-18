@@ -1,25 +1,19 @@
 plugins {
-	alias(libs.plugins.android.application)
+	alias(libs.plugins.android.library)
 	alias(libs.plugins.kotlin.android)
 	alias(libs.plugins.ksp)
 	alias(libs.plugins.hilt)
 }
 
 android {
-	namespace = "com.herlangga.carousellnews"
+	namespace = "com.herlangga.core"
 	compileSdk = libs.versions.compileSdk.get().toInt()
 
 	defaultConfig {
-		applicationId = "com.herlangga.carousellnews"
 		minSdk = libs.versions.minSdk.get().toInt()
-		targetSdk = libs.versions.targetSdk.get().toInt()
-		versionCode = 1
-		versionName = "1.0"
 
 		testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-		vectorDrawables {
-			useSupportLibrary = true
-		}
+		consumerProguardFiles("consumer-rules.pro")
 	}
 
 	buildTypes {
@@ -39,28 +33,42 @@ android {
 		jvmTarget = libs.versions.jvmTarget.get()
 	}
 	buildFeatures {
+		buildConfig = true
 		compose = true
 	}
 	composeOptions {
 		kotlinCompilerExtensionVersion = "1.5.1"
 	}
-	packaging {
-		resources {
-			excludes += "/META-INF/{AL2.0,LGPL2.1}"
-		}
-	}
-
 }
 
 dependencies {
-	implementation(project(":news"))
 	implementation(libs.dagger.hilt)
 	ksp(libs.dagger.hilt.compiler)
+	api(libs.dagger.hilt.compose.navigation)
+
+	api(libs.bundles.networking)
+
+	debugImplementation(libs.chucker)
+	releaseImplementation(libs.chucker.no.op)
+
+	api(libs.gson)
+	api(libs.retrofit.gson)
+
+	api(libs.androidx.core.ktx)
+	api(libs.androidx.appcompat)
+	api(libs.material)
+
+	api(libs.androidx.lifecycle.runtime.ktx)
+	api(libs.androidx.activity.compose)
+	api(platform(libs.androidx.compose.bom))
+	api(libs.androidx.ui)
+	api(libs.androidx.ui.graphics)
+	api(libs.androidx.ui.tooling.preview)
+	api(libs.androidx.material3)
+	api(libs.androidx.lifecycle.runtime.compose.android)
+
+
 	testImplementation(libs.junit)
 	androidTestImplementation(libs.androidx.junit)
 	androidTestImplementation(libs.androidx.espresso.core)
-	androidTestImplementation(platform(libs.androidx.compose.bom))
-	androidTestImplementation(libs.androidx.ui.test.junit4)
-	debugImplementation(libs.androidx.ui.tooling)
-	debugImplementation(libs.androidx.ui.test.manifest)
 }

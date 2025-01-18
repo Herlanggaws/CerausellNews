@@ -1,4 +1,4 @@
-package com.herlangga.carousellnews.ui.theme
+package com.herlangga.core.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
