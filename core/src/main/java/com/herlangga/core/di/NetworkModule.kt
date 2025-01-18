@@ -14,6 +14,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
@@ -70,4 +72,13 @@ object NetworkModule {
 				.build()
 		}
 	}
+
+	@Provides
+	@Singleton
+	fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit =
+		Retrofit.Builder()
+			.addConverterFactory(GsonConverterFactory.create())
+			.baseUrl("https://storage.googleapis.com/carousell-interview-assets/android/")
+			.client(okHttpClient)
+			.build()
 }
