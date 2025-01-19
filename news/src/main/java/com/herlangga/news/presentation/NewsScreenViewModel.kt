@@ -1,8 +1,10 @@
 package com.herlangga.news.presentation
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.herlangga.core.data.ViewState
+import com.herlangga.news.domain.model.SortType
 import com.herlangga.news.domain.usecase.NewsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
@@ -21,7 +23,7 @@ import javax.inject.Inject
 @HiltViewModel
 class NewsScreenViewModel @Inject constructor(
 	private val useCase: NewsUseCase
-): ViewModel() {
+) : ViewModel() {
 
 	private val _uiState = MutableStateFlow(NewsUiState())
 	val uiState get() = _uiState.asStateFlow()
@@ -33,6 +35,16 @@ class NewsScreenViewModel @Inject constructor(
 	fun onEvent(event: NewsUiEvent) = viewModelScope.launch {
 		when (event) {
 			NewsUiEvent.OnFetchNews -> {
+				onFetchNews()
+			}
+			NewsUiEvent.OnSortOptionClicked -> {
+				_uiState.update { it.copy(isShowSortDialog = true) }
+			}
+			NewsUiEvent.OnSortOptionDismiss -> {
+				_uiState.update { it.copy(isShowSortDialog = false) }
+			}
+			is NewsUiEvent.OnSortSelected -> {
+				_uiState.update { it.copy(sortType = event.type) }
 				onFetchNews()
 			}
 			else -> {
@@ -50,7 +62,16 @@ class NewsScreenViewModel @Inject constructor(
 				if (ex is CancellationException) throw ex
 				_uiState.update { it.copy(viewState = ViewState.Error(ex.message.orEmpty())) }
 			}.onSuccess { news ->
-				_uiState.update { it.copy(viewState = ViewState.Content, news = news) }
+				_uiState.update {
+					it.copy(
+						viewState = ViewState.Content,
+						news = news.sortedBy {
+							when (_uiState.value.sortType) {
+								SortType.RECENT -> it.timeCreated
+								SortType.POPULAR -> it.rank.toLong()
+							}
+						})
+				}
 			}
 		}
 	}

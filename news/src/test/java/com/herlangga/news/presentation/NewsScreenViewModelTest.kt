@@ -1,14 +1,13 @@
 package com.herlangga.news.presentation
 
-import android.view.View
 import app.cash.turbine.test
 import com.herlangga.core.data.ViewState
 import com.herlangga.news.domain.model.News
+import com.herlangga.news.domain.model.SortType
 import com.herlangga.news.domain.usecase.NewsUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.unmockkAll
@@ -53,6 +52,35 @@ class NewsScreenViewModelTest {
 	fun `on receive OnFetchNews should trigger NewsUseCase`() = runTest {
 		coEvery { newsUseCase.invoke() } returns emptyList()
 		sut.onEvent(NewsUiEvent.OnFetchNews)
+		coVerify { newsUseCase.invoke() }
+	}
+
+	@Test
+	fun `on receive OnSortOptionClicked should triger isShowSortDialog to be true`() = runTest {
+		sut.onEvent(NewsUiEvent.OnSortOptionClicked)
+		sut.uiState.test {
+			val successState = awaitItem()
+			assert(successState.isShowSortDialog ==  true) {
+				"isShowSortDialog is different from expected value"
+			}
+		}
+	}
+
+	@Test
+	fun `on receive OnSortOptionDismiss should triger isShowSortDialog to be true`() = runTest {
+		sut.onEvent(NewsUiEvent.OnSortOptionDismiss)
+		sut.uiState.test {
+			val successState = awaitItem()
+			assert(successState.isShowSortDialog ==  false) {
+				"isShowSortDialog is different from expected value"
+			}
+		}
+	}
+
+	@Test
+	fun `on receive OnSortSelected should triger NewsUseCase`() = runTest {
+		coEvery { newsUseCase.invoke() } returns emptyList()
+		sut.onEvent(NewsUiEvent.OnSortSelected(SortType.RECENT))
 		coVerify { newsUseCase.invoke() }
 	}
 
