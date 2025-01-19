@@ -1,8 +1,13 @@
 package com.herlangga.news.presentation
 
+import android.util.Log
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -21,13 +26,19 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.flowWithLifecycle
 import com.herlangga.core.data.ViewState
 import com.herlangga.core.ui.theme.Primary
+import com.herlangga.core.ui.theme.PurpleGrey80
 import com.herlangga.core.ui.theme.title
 import com.herlangga.news.R
+import com.herlangga.news.presentation.component.NewsEmptyOrError
+import com.herlangga.news.presentation.component.NewsItem
+import com.herlangga.news.presentation.component.NewsItemShimmer
+import com.herlangga.news.presentation.component.SortDialog
 
 /**
  * Designed and developed by Herlangga Wicaksono on 18/01/25.
@@ -47,11 +58,17 @@ fun NewsScreen(
 			.collect(::onEvent)
 	}
 
+	val OnEvent = remember<(NewsUiEvent) -> Unit> {
+		{
+			viewModel.onEvent(it)
+		}
+	}
+
 	NewsScreen(
 		uiState = uiState,
 		modifier = modifier,
-
-		)
+		onEvent = OnEvent
+	)
 
 }
 
@@ -64,7 +81,7 @@ fun NewsScreen(
 	onEvent: (NewsUiEvent) -> Unit = {}
 ) {
 	Scaffold(
-		modifier = modifier.fillMaxSize(),
+		modifier = modifier.background(PurpleGrey80),
 		topBar = {
 			TopAppBar(
 				colors = TopAppBarDefaults.topAppBarColors().copy(containerColor = Primary),
@@ -77,9 +94,8 @@ fun NewsScreen(
 				},
 				actions = {
 					IconButton(onClick = {
-						/*
-						* To Do
-						*/
+						Log.i("elang","elang IconButton")
+						onEvent(NewsUiEvent.OnSortOptionClicked)
 					}) {
 						Image(
 							Icons.Filled.MoreVert,
@@ -91,10 +107,32 @@ fun NewsScreen(
 			)
 		}
 	) { innerPadding ->
-		Text(
-			modifier = Modifier.padding(innerPadding),
-			text = ""
-		)
+		when (uiState.viewState) {
+			is ViewState.Loading -> {
+				NewsItemShimmer(modifier = Modifier.padding(innerPadding))
+			}
+			is ViewState.Error -> {
+				NewsEmptyOrError(uiState.viewState.message)
+			}
+			else -> {
+				if (uiState.news.isEmpty()) {
+					NewsEmptyOrError(stringResource(R.string.label_empty_data))
+				} else {
+					LazyColumn(modifier = Modifier.padding(innerPadding)) {
+						items(uiState.news) {news ->
+							Spacer(Modifier.size(8.dp))
+							NewsItem(
+								news = news,
+								modifier = Modifier.padding(horizontal = 8.dp),
+								onEvent = onEvent
+							)
+						}
+					}
+				}
+
+			}
+		}
+		SortDialog(uiState = uiState, modifier = modifier, onEvent = onEvent)
 	}
 }
 
