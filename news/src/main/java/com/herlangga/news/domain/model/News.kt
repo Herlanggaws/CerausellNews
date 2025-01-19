@@ -22,4 +22,13 @@ data class News(
 		timeCreated = data?.timeCreated ?: 0L,
 		title = data?.title.orEmpty(),
 	)
+
+	constructor(testId: String): this(
+		bannerUrl = "",
+		description = "",
+		id = testId,
+		rank = 0,
+		timeCreated = 0L,
+		title = "",
+	)
 }

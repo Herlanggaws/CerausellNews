@@ -42,7 +42,7 @@ dependencies {
 	api(project(":core"))
 	implementation(libs.dagger.hilt)
 	ksp(libs.dagger.hilt.compiler)
-	testImplementation(libs.junit)
+	testImplementation(libs.bundles.test)
 	androidTestImplementation(libs.androidx.junit)
 	androidTestImplementation(libs.androidx.espresso.core)
 	androidTestImplementation(platform(libs.androidx.compose.bom))

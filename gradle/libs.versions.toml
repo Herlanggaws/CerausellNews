@@ -6,7 +6,7 @@ jvmTarget = "1.8"
 agp = "8.6.0"
 kotlin = "1.9.0"
 coreKtx = "1.15.0"
-junit = "4.14-SNAPSHOT"
+junit = "4.13"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 lifecycleRuntimeKtx = "2.8.7"
@@ -25,6 +25,7 @@ coil = "2.5.0"
 compose-hilt-navigation = "1.2.0"
 lifecycle = "2.8.4"
 lifecycleRuntimeComposeAndroid = "2.8.7"
+coroutine = "1.9.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -58,7 +59,11 @@ okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 
 chucker = { module = "com.github.chuckerteam.chucker:library", version.ref = "chucker" }
 chucker-no-op = { module = "com.github.chuckerteam.chucker:library-no-op", version.ref = "chucker" }
+mockk = { module = "io.mockk:mockk", version = "1.13.16" }
+turbine = { module = "app.cash.turbine:turbine", version = "1.2.0" }
+coroutine-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutine" }
 
+coil = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -70,4 +75,5 @@ kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", versi
 
 [bundles]
 networking = ["retrofit", "okhttp", "okhttp-logging"]
+test = ["coroutine-test", "junit", "mockk", "turbine"]
 

@@ -1,14 +1,16 @@
 package com.herlangga.news.presentation
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.herlangga.core.data.ViewState
 import com.herlangga.news.domain.usecase.NewsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -39,10 +41,17 @@ class NewsScreenViewModel @Inject constructor(
 		}
 	}
 
-	fun onFetchNews() {
+	private fun onFetchNews() {
+		_uiState.update { it.copy(viewState = ViewState.Loading) }
 		viewModelScope.launch {
-			val news = useCase.invoke()
-			Log.i("elang","elang $news")
+			useCase.runCatching {
+				invoke()
+			}.onFailure { ex ->
+				if (ex is CancellationException) throw ex
+				_uiState.update { it.copy(viewState = ViewState.Error(ex.message.orEmpty())) }
+			}.onSuccess { news ->
+				_uiState.update { it.copy(viewState = ViewState.Content, news = news) }
+			}
 		}
 	}
 
